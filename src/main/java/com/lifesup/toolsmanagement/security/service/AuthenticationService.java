@@ -3,7 +3,7 @@ package com.lifesup.toolsmanagement.security.service;
 import com.lifesup.toolsmanagement.security.dto.SignInRequestDTO;
 import com.lifesup.toolsmanagement.security.dto.SignInResponseDTO;
 import com.lifesup.toolsmanagement.security.dto.SignUpRequestDTO;
-import com.lifesup.toolsmanagement.transaction.dto.TransactionDTO;
+import com.lifesup.toolsmanagement.transaction.model.Transaction;
 import com.lifesup.toolsmanagement.transaction.service.TransactionService;
 import com.lifesup.toolsmanagement.user.dto.MapUserDeviceDTO;
 import com.lifesup.toolsmanagement.user.dto.UserDTO;
@@ -20,6 +20,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -57,20 +59,59 @@ public class AuthenticationService {
         ));
         UserDetails userDetails = userService.loadUserByUsername(signInRequestDTO.getUsername());
         User user = (User) userDetails;
-        List<TransactionDTO> transactionList = transactionService.getTransactionByUserId(user.getId());
+        List<Transaction> transactionList = transactionService.getTransactionByUserId(user.getId());
         String jwtToken = jwtService.generateToken(user);
         String message = "";
         if (transactionList.isEmpty()) {
             MapUserDevice mapUserDevice = new MapUserDevice();
+            mapUserDevice.setUser(user);
             mapUserDevice.setDeviceId(signInRequestDTO.getDeviceId());
             mapUserDevice.setExpDate(null);
             mapUserDevice.setTransaction(null);
             mapUserDeviceService.saveWithEntity(mapUserDevice, MapUserDeviceDTO.class);
-            message = "The account has not purchased the tool";
+            message = "Login success. The account has not purchased the tool or the tool has expired";
         } else {
-
+            outer:
+            {
+                for (Transaction transaction : transactionList) {
+                    List<MapUserDevice> mapUserDevices = mapUserDeviceService.getMapUserDeviceByUserIdAndTransactionId(transaction.getUser().getId(), transaction.getId());
+                    for (MapUserDevice mapUserDevice : mapUserDevices) {
+                        if (signInRequestDTO.getDeviceId().equals(mapUserDevice.getDeviceId())) {
+                            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                            String formattedDate = dateTimeFormatter.format(mapUserDevice.getExpDate());
+                            message = String.format("Login success. This device can be used until: %s", formattedDate);
+                            break outer;
+                        }
+                    }
+                    if (transaction.getAmountDevice() == mapUserDevices.size()) {
+                        MapUserDevice mapUserDevice = new MapUserDevice();
+                        mapUserDevice.builder()
+                                .deviceId(signInRequestDTO.getDeviceId())
+                                .expDate(null)
+                                .transaction(null)
+                                .user(user)
+                                .build();
+                        mapUserDeviceService.saveWithEntity(mapUserDevice, MapUserDeviceDTO.class);
+                        message = "Login success. But device is is full, this device can't use tool";
+                        break outer;
+                    } else if (transaction.getAmountDevice() < mapUserDevices.size()) {
+                        MapUserDevice mapUserDevice = new MapUserDevice();
+                        mapUserDevice.builder()
+                                .deviceId(signInRequestDTO.getDeviceId())
+                                .expDate(transaction.getExpDate())
+                                .createdDate(LocalDate.now())
+                                .isDeleted(false)
+                                .user(user)
+                                .transaction(transaction)
+                                .build();
+                        mapUserDeviceService.saveWithEntity(mapUserDevice, MapUserDeviceDTO.class);
+                        mapUserDevices.add(mapUserDevice);
+                        message = String.format("Login success. This account just added a new device (%d/%d)", mapUserDevices.size() + 1, transaction.getId());
+                        break outer;
+                    }
+                }
+            }
         }
-
         return SignInResponseDTO.builder()
                 .message(message)
                 .token(jwtToken)

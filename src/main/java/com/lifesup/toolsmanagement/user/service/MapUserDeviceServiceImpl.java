@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -41,5 +42,10 @@ public class MapUserDeviceServiceImpl implements MapUserDeviceService {
         mapUserDevice.setDeviceId(mapUserDeviceDTO.getDeviceId());
         mapUserDevice.setExpDate(mapUserDeviceDTO.getExpDate());
         return modelMapper.map(mapUserDevice, MapUserDeviceDTO.class);
+    }
+
+    @Override
+    public List<MapUserDevice> getMapUserDeviceByUserIdAndTransactionId(UUID userId, UUID transactionId) {
+        return mapUserDeviceRepository.findByUser_IdAndTransaction_Id(userId, transactionId);
     }
 }

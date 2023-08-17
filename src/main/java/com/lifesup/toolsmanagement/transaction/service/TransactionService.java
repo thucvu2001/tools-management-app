@@ -10,6 +10,6 @@ import java.util.UUID;
 public interface TransactionService extends GenericService<Transaction, TransactionDTO, UUID> {
     TransactionDTO updateTransaction(UUID transactionId, TransactionDTO transactionDTO);
 
-    List<TransactionDTO> getTransactionByUserId(UUID userId);
+    List<Transaction> getTransactionByUserId(UUID userId);
 }
 

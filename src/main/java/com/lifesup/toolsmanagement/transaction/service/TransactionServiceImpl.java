@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -46,13 +47,12 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setToken(transactionDTO.getToken());
         transaction.setActive(transactionDTO.isActive());
         transaction.setCreatedDate(transactionDTO.getCreatedDate());
-        transaction.setDeleted(transaction.isDeleted());
+        transaction.setDeleted(transactionDTO.isDeleted());
         return modelMapper.map(transaction, TransactionDTO.class);
     }
 
     @Override
-    public List<TransactionDTO> getTransactionByUserId(UUID userId) {
-        List<Transaction> transactions = transactionRepository.findByUser_Id(userId);
-        return transactions.stream().map(transaction -> mapper.map(transaction, TransactionDTO.class)).toList();
+    public List<Transaction> getTransactionByUserId(UUID userId) {
+        return transactionRepository.findByUser_Id(userId, LocalDate.now());
     }
 }
