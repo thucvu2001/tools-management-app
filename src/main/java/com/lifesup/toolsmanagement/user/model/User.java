@@ -21,8 +21,8 @@ import java.util.*;
 public class User implements UserDetails, Serializable {
 
     @Id
-    @GeneratedValue
-    @Column(name = "user_id")
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "user_id", columnDefinition = "VARCHAR(255)", nullable = false)
     private UUID id;
 
     @Column(name = "username",

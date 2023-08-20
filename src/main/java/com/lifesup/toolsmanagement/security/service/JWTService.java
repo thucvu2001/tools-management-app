@@ -6,6 +6,7 @@ import com.lifesup.toolsmanagement.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Date;
 
@@ -19,6 +20,15 @@ public class JWTService {
     public String generateToken(User user) {
         return JWT.create()
                 .withSubject(user.getUsername())
+                .withExpiresAt(Date.from(expirationTime))
+                .sign(algorithm);
+    }
+
+    public String generateToken(int year, int amountDevice, BigDecimal value) {
+        return JWT.create()
+                .withClaim("year", year)
+                .withClaim("amountDevice", amountDevice)
+                .withClaim("value", String.valueOf(value))
                 .withExpiresAt(Date.from(expirationTime))
                 .sign(algorithm);
     }

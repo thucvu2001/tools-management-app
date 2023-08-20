@@ -45,6 +45,7 @@ public class UserServiceImpl implements UserService {
         user.setPassword(userDTO.getPassword());
         user.setEmail(userDTO.getEmail());
         user.setPhone(userDTO.getPhone());
+        user.setDelete(user.isDelete());
         return modelMapper.map(user, UserDTO.class);
     }
 

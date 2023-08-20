@@ -1,5 +1,6 @@
 package com.lifesup.toolsmanagement.security.service;
 
+import com.lifesup.toolsmanagement.common.util.Mapper;
 import com.lifesup.toolsmanagement.security.dto.SignInRequestDTO;
 import com.lifesup.toolsmanagement.security.dto.SignInResponseDTO;
 import com.lifesup.toolsmanagement.security.dto.SignUpRequestDTO;
@@ -35,6 +36,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JWTService jwtService;
+    private final Mapper mapper;
 
     public String signUp(SignUpRequestDTO signUpRequestDTO) {
         if (!signUpRequestDTO.getPassword().equals(signUpRequestDTO.getRePassword())) {
@@ -48,7 +50,7 @@ public class AuthenticationService {
         user.setPhone(signUpRequestDTO.getPhone());
 
         userService.saveWithEntity(user, UserDTO.class);
-        log.info("Create user success");
+        log.info("User ID:" + user.getId());
         return "Sign Up Success";
     }
 
@@ -59,7 +61,12 @@ public class AuthenticationService {
         ));
         UserDetails userDetails = userService.loadUserByUsername(signInRequestDTO.getUsername());
         User user = (User) userDetails;
+        user.setDelete(false);
+        userService.updateUser(user.getId(), mapper.map(user, UserDTO.class));
+        System.out.println("User email: " + user.getEmail());
+
         List<Transaction> transactionList = transactionService.getTransactionByUserId(user.getId());
+        System.out.println("transactionList: " + transactionList);
         String jwtToken = jwtService.generateToken(user);
         String message = "";
         if (transactionList.isEmpty()) {
@@ -74,7 +81,9 @@ public class AuthenticationService {
             outer:
             {
                 for (Transaction transaction : transactionList) {
-                    List<MapUserDevice> mapUserDevices = mapUserDeviceService.getMapUserDeviceByUserIdAndTransactionId(transaction.getUser().getId(), transaction.getId());
+                    List<MapUserDevice> mapUserDevices = mapUserDeviceService
+                            .getMapUserDeviceByUserIdAndTransactionId(transaction.getUser().getId(), transaction.getId());
+                    System.out.println("mapUserDevices: " + mapUserDevices);
                     for (MapUserDevice mapUserDevice : mapUserDevices) {
                         if (signInRequestDTO.getDeviceId().equals(mapUserDevice.getDeviceId())) {
                             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");

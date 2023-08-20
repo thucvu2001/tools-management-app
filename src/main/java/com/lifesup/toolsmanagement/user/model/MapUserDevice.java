@@ -16,7 +16,8 @@ import java.util.UUID;
 @Table(name = "map_user_device")
 public class MapUserDevice {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(columnDefinition = "VARCHAR(255)")
     private UUID id;
     private String deviceId;
     private LocalDate expDate;

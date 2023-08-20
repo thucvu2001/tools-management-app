@@ -29,7 +29,8 @@ public class SecurityConfig {
             return corsConfiguration;
         }));
 
-        httpSecurity.sessionManagement(sessionManagementCustomizer -> sessionManagementCustomizer.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        httpSecurity.sessionManagement(sessionManagementCustomizer -> sessionManagementCustomizer
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         httpSecurity.authorizeHttpRequests(authRequest -> authRequest
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/swagger-ui/**").permitAll()

@@ -21,8 +21,8 @@ import java.util.UUID;
 public class Transaction {
 
     @Id
-    @GeneratedValue
-    @Column(name = "transaction_id")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "transaction_id", columnDefinition = "VARCHAR(255)")
     private UUID id;
     private BigDecimal value;
     private LocalDate expDate;

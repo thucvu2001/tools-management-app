@@ -46,6 +46,6 @@ public class MapUserDeviceServiceImpl implements MapUserDeviceService {
 
     @Override
     public List<MapUserDevice> getMapUserDeviceByUserIdAndTransactionId(UUID userId, UUID transactionId) {
-        return mapUserDeviceRepository.findByUser_IdAndTransaction_Id(userId, transactionId);
+        return mapUserDeviceRepository.findByUserIdAndTransactionId(userId, transactionId);
     }
 }
