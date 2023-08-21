@@ -63,10 +63,10 @@ public class AuthenticationService {
         User user = (User) userDetails;
         user.setDelete(false);
         userService.updateUser(user.getId(), mapper.map(user, UserDTO.class));
-        System.out.println("User email: " + user.getEmail());
+        log.info("User email: " + user.getEmail());
 
         List<Transaction> transactionList = transactionService.getTransactionByUserId(user.getId());
-        System.out.println("transactionList: " + transactionList);
+        log.info("transactionList: " + transactionList);
         String jwtToken = jwtService.generateToken(user);
         String message = "";
         if (transactionList.isEmpty()) {
@@ -83,7 +83,7 @@ public class AuthenticationService {
                 for (Transaction transaction : transactionList) {
                     List<MapUserDevice> mapUserDevices = mapUserDeviceService
                             .getMapUserDeviceByUserIdAndTransactionId(transaction.getUser().getId(), transaction.getId());
-                    System.out.println("mapUserDevices: " + mapUserDevices);
+                    log.info("mapUserDevices: " + mapUserDevices);
                     for (MapUserDevice mapUserDevice : mapUserDevices) {
                         if (signInRequestDTO.getDeviceId().equals(mapUserDevice.getDeviceId())) {
                             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");

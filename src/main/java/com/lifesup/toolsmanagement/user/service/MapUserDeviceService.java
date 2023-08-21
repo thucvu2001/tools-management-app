@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface MapUserDeviceService extends GenericService<MapUserDevice, MapUserDeviceDTO, UUID> {
-    MapUserDeviceDTO update(MapUserDeviceDTO mapUserDeviceDTO, UUID id);
+    void update(MapUserDevice mapUserDevice);
 
     List<MapUserDevice> getMapUserDeviceByUserIdAndTransactionId(UUID userId, UUID transactionId);
 }

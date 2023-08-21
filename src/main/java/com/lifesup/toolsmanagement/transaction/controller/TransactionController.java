@@ -13,9 +13,12 @@ import com.lifesup.toolsmanagement.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
@@ -59,4 +62,18 @@ public class TransactionController {
         }
     }
 
+    @PostMapping("check-expiration-date")
+    @Scheduled(cron = "0 0 0 * * *")
+    public void checkExpirationDate() {
+        transactionService.checkExpiration();
+    }
+
+    @PostMapping("export-transaction")
+    @Scheduled(cron = "0 0 0 L * ?")
+    public void exportTransaction() throws IOException {
+        LocalDate localDate = LocalDate.now();
+        LocalDate lastDateOfMonth = localDate.with(TemporalAdjusters.firstDayOfMonth());
+        LocalDate firstDateOfMoth = localDate.with(TemporalAdjusters.lastDayOfMonth());
+        transactionService.exportTransactionToExcel(firstDateOfMoth, lastDateOfMonth);
+    }
 }

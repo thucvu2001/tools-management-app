@@ -36,6 +36,8 @@ public class SecurityConfig {
                 .requestMatchers("/swagger-ui/**").permitAll()
                 .requestMatchers("/v3/api-docs/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/transaction/check-expiration-date").permitAll()
+                .requestMatchers("/api/transaction/export-transaction").permitAll()
                 .anyRequest().authenticated()
         );
         httpSecurity.authenticationProvider(authenticationProvider);

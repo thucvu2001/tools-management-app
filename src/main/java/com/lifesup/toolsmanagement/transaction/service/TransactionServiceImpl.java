@@ -6,21 +6,27 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.lifesup.toolsmanagement.common.util.Mapper;
 import com.lifesup.toolsmanagement.security.service.JWTService;
-import com.lifesup.toolsmanagement.transaction.dto.TransactionDTO;
 import com.lifesup.toolsmanagement.transaction.model.Transaction;
 import com.lifesup.toolsmanagement.transaction.repository.TransactionRepository;
+import com.lifesup.toolsmanagement.user.model.MapUserDevice;
 import com.lifesup.toolsmanagement.user.model.User;
+import com.lifesup.toolsmanagement.user.service.MapUserDeviceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -29,8 +35,8 @@ import java.util.UUID;
 @Slf4j
 public class TransactionServiceImpl implements TransactionService {
     private final TransactionRepository transactionRepository;
+    private final MapUserDeviceService mapUserDeviceService;
     private final Mapper mapper;
-    private final ModelMapper modelMapper;
     private final JWTService jwtService;
     private static final String SECRET_KEY = "c342dd5ff691b05ce02f7d0dd292a65eb4d89965";
 
@@ -46,30 +52,13 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public TransactionDTO updateTransaction(UUID transactionId, TransactionDTO transactionDTO) {
-        Optional<Transaction> optionalTransaction = transactionRepository.findById(transactionId);
-        if (optionalTransaction.isEmpty()) {
-            throw new RuntimeException("Transaction with ID: " + transactionId + " not found");
-        }
-        Transaction transaction = optionalTransaction.get();
-        transaction.setValue(transactionDTO.getValue());
-        transaction.setExpDate(transactionDTO.getExpDate());
-        transaction.setAmountDevice(transactionDTO.getAmountDevice());
-        transaction.setToken(transactionDTO.getToken());
-        transaction.setActive(transactionDTO.isActive());
-        transaction.setCreatedDate(transactionDTO.getCreatedDate());
-        transaction.setDeleted(transactionDTO.isDeleted());
-        return modelMapper.map(transaction, TransactionDTO.class);
-    }
-
-    @Override
     public List<Transaction> getTransactionByUserId(UUID userId) {
-        return transactionRepository.findByUser_Id(LocalDate.now(), userId);
+        return transactionRepository.findByUserId(LocalDate.now(), userId);
     }
 
     @Override
     public String createTransaction(int year, int amountDevice) {
-        BigDecimal value = BigDecimal.valueOf(50 * year * amountDevice);
+        BigDecimal value = BigDecimal.valueOf(50L * year * amountDevice);
         log.info(value.toString());
         return jwtService.generateToken(year, amountDevice, value);
     }
@@ -99,5 +88,63 @@ public class TransactionServiceImpl implements TransactionService {
             transactionRepository.save(transaction);
             return "Recharge successful";
         }
+    }
+
+    @Override
+    public void checkExpiration() {
+        List<Transaction> transactionList = transactionRepository.findAll();
+        for (Transaction transaction : transactionList) {
+            if (LocalDate.now().isAfter(transaction.getExpDate())) {
+                transaction.setDeleted(true);
+                transaction.setExpDate(null);
+                transactionRepository.save(transaction);
+                Set<MapUserDevice> mapUserDeviceSet = transaction.getMapUserDeviceSet();
+                for (MapUserDevice mapUserDevice : mapUserDeviceSet) {
+                    mapUserDevice.setExpDate(null);
+                    mapUserDevice.setDeleted(true);
+                    mapUserDeviceService.update(mapUserDevice);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void exportTransactionToExcel(LocalDate startDate, LocalDate endDate) throws IOException {
+        String fileName = "transaction-" + endDate.getMonthValue() + ".xlsx";
+        String filePath = "C:\\Users\\vuvan\\Desktop\\New folder\\" + fileName;
+        List<Transaction> transactionList = transactionRepository.findTransactionsByDateRange(startDate, endDate);
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Transactions");
+
+        Row headerRow = sheet.createRow(0);
+        headerRow.createCell(0).setCellValue("Transaction ID");
+        headerRow.createCell(1).setCellValue("Value");
+        headerRow.createCell(2).setCellValue("Exp Date");
+        headerRow.createCell(3).setCellValue("Amount Device");
+        headerRow.createCell(4).setCellValue("Token");
+        headerRow.createCell(5).setCellValue("Active");
+        headerRow.createCell(6).setCellValue("Created Date");
+        headerRow.createCell(7).setCellValue("Deleted");
+        headerRow.createCell(8).setCellValue("User ID");
+
+        int rowColumn = 1;
+        for (Transaction transaction : transactionList) {
+            Row row = sheet.createRow(rowColumn);
+            row.createCell(0).setCellValue(transaction.getId().toString());
+            row.createCell(1).setCellValue(transaction.getValue().toString());
+            row.createCell(2).setCellValue(transaction.getExpDate().toString());
+            row.createCell(3).setCellValue(transaction.getAmountDevice());
+            row.createCell(4).setCellValue(transaction.getToken());
+            row.createCell(5).setCellValue(transaction.isActive());
+            row.createCell(6).setCellValue(transaction.getCreatedDate().toString());
+            row.createCell(7).setCellValue(transaction.isDeleted());
+            row.createCell(8).setCellValue(transaction.getUser().getId().toString());
+            ++rowColumn;
+        }
+        FileOutputStream fileOutputStream = new FileOutputStream(filePath);
+        workbook.write(fileOutputStream);
+        fileOutputStream.close();
+        workbook.close();
     }
 }
