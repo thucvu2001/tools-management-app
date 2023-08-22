@@ -1,12 +1,10 @@
 package com.lifesup.toolsmanagement.user.service;
 
 import com.lifesup.toolsmanagement.common.util.Mapper;
-import com.lifesup.toolsmanagement.user.dto.UserDTO;
 import com.lifesup.toolsmanagement.user.model.User;
 import com.lifesup.toolsmanagement.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,8 +18,6 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final Mapper mapper;
-    private final ModelMapper modelMapper;
-
 
     @Override
     public JpaRepository<User, Integer> getRepository() {

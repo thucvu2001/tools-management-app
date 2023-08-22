@@ -15,7 +15,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
     @Query(value = """
             SELECT * FROM transactions AS t
             WHERE t.exp_date > CURRENT_DATE
-            AND t.is_active = true 
+            AND t.is_active = true
             AND t.user_id = :userId
             """, nativeQuery = true
     )

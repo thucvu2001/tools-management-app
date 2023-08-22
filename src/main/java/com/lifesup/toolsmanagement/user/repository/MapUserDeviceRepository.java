@@ -11,7 +11,7 @@ import java.util.List;
 public interface MapUserDeviceRepository extends JpaRepository<MapUserDevice, Integer> {
 
     @Query(nativeQuery = true, value = """
-            select * 
+            select *
             from map_user_device as mud
             where mud.user_id = ?1 and mud.transaction_id = ?2
             """)

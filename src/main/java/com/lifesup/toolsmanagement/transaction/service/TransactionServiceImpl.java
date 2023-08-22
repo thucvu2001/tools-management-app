@@ -127,38 +127,36 @@ public class TransactionServiceImpl implements TransactionService {
         String fileName = "transaction-" + endDate.getMonthValue() + ".xlsx";
         String filePath = "C:\\Users\\vuvan\\Desktop\\New folder\\" + fileName;
         List<Transaction> transactionList = transactionRepository.findTransactionsByDateRange(startDate, endDate);
+        try (Workbook workbook = new XSSFWorkbook(); FileOutputStream fileOutputStream = new FileOutputStream(filePath)) {
 
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Transactions");
+            Sheet sheet = workbook.createSheet("Transactions");
+            Row headerRow = sheet.createRow(0);
+            headerRow.createCell(0).setCellValue("Transaction ID");
+            headerRow.createCell(1).setCellValue("Value");
+            headerRow.createCell(2).setCellValue("Exp Date");
+            headerRow.createCell(3).setCellValue("Amount Device");
+            headerRow.createCell(4).setCellValue("Token");
+            headerRow.createCell(5).setCellValue("Active");
+            headerRow.createCell(6).setCellValue("Created Date");
+            headerRow.createCell(7).setCellValue("Deleted");
+            headerRow.createCell(8).setCellValue("User ID");
 
-        Row headerRow = sheet.createRow(0);
-        headerRow.createCell(0).setCellValue("Transaction ID");
-        headerRow.createCell(1).setCellValue("Value");
-        headerRow.createCell(2).setCellValue("Exp Date");
-        headerRow.createCell(3).setCellValue("Amount Device");
-        headerRow.createCell(4).setCellValue("Token");
-        headerRow.createCell(5).setCellValue("Active");
-        headerRow.createCell(6).setCellValue("Created Date");
-        headerRow.createCell(7).setCellValue("Deleted");
-        headerRow.createCell(8).setCellValue("User ID");
+            int rowColumn = 1;
+            for (Transaction transaction : transactionList) {
+                Row row = sheet.createRow(rowColumn);
+                row.createCell(0).setCellValue(transaction.getId().toString());
+                row.createCell(1).setCellValue(transaction.getValue().toString());
+                row.createCell(2).setCellValue(transaction.getExpDate().toString());
+                row.createCell(3).setCellValue(transaction.getAmountDevice());
+                row.createCell(4).setCellValue(transaction.getToken());
+                row.createCell(5).setCellValue(transaction.isActive());
+                row.createCell(6).setCellValue(transaction.getCreatedDate().toString());
+                row.createCell(7).setCellValue(transaction.isDeleted());
+                row.createCell(8).setCellValue(transaction.getUser().getId());
+                ++rowColumn;
+            }
 
-        int rowColumn = 1;
-        for (Transaction transaction : transactionList) {
-            Row row = sheet.createRow(rowColumn);
-            row.createCell(0).setCellValue(transaction.getId().toString());
-            row.createCell(1).setCellValue(transaction.getValue().toString());
-            row.createCell(2).setCellValue(transaction.getExpDate().toString());
-            row.createCell(3).setCellValue(transaction.getAmountDevice());
-            row.createCell(4).setCellValue(transaction.getToken());
-            row.createCell(5).setCellValue(transaction.isActive());
-            row.createCell(6).setCellValue(transaction.getCreatedDate().toString());
-            row.createCell(7).setCellValue(transaction.isDeleted());
-            row.createCell(8).setCellValue(transaction.getUser().getId());
-            ++rowColumn;
+            workbook.write(fileOutputStream);
         }
-        FileOutputStream fileOutputStream = new FileOutputStream(filePath);
-        workbook.write(fileOutputStream);
-        fileOutputStream.close();
-        workbook.close();
     }
 }

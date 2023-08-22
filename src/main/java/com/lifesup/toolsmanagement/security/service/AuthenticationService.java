@@ -1,12 +1,10 @@
 package com.lifesup.toolsmanagement.security.service;
 
-import com.lifesup.toolsmanagement.common.util.Mapper;
 import com.lifesup.toolsmanagement.security.dto.SignInRequestDTO;
 import com.lifesup.toolsmanagement.security.dto.SignInResponseDTO;
 import com.lifesup.toolsmanagement.security.dto.SignUpRequestDTO;
 import com.lifesup.toolsmanagement.transaction.model.Transaction;
 import com.lifesup.toolsmanagement.transaction.service.TransactionService;
-import com.lifesup.toolsmanagement.user.dto.UserDTO;
 import com.lifesup.toolsmanagement.user.model.MapUserDevice;
 import com.lifesup.toolsmanagement.user.model.User;
 import com.lifesup.toolsmanagement.user.service.MapUserDeviceService;
@@ -33,7 +31,6 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JWTService jwtService;
-    private final Mapper mapper;
 
     public String signUp(SignUpRequestDTO signUpRequestDTO) {
         if (!signUpRequestDTO.getPassword().equals(signUpRequestDTO.getRePassword())) {
@@ -107,9 +104,5 @@ public class AuthenticationService {
                 .message(message)
                 .token(jwtToken)
                 .build();
-    }
-
-    public void signOut(String token) {
-        
     }
 }
