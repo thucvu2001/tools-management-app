@@ -78,14 +78,7 @@ public class AuthenticationService {
                         }
                     }
                     if (transaction.getAmountDevice() == mapUserDevices.size()) {
-                        MapUserDevice mapUserDevice = new MapUserDevice();
-                        mapUserDevice.setDeviceId(signInRequestDTO.getDeviceId());
-                        mapUserDevice.setExpDate(null);
-                        mapUserDevice.setUser(user);
-                        mapUserDevice.setTransaction(null);
-                        mapUserDeviceService.save(mapUserDevice);
                         message = "Login success. But device is is full, this device can't use tool";
-                        break outer;
                     } else if (transaction.getAmountDevice() > mapUserDevices.size()) {
                         MapUserDevice mapUserDevice = new MapUserDevice();
                         mapUserDevice.setDeviceId(signInRequestDTO.getDeviceId());
