@@ -6,7 +6,6 @@ import com.lifesup.toolsmanagement.security.dto.SignInResponseDTO;
 import com.lifesup.toolsmanagement.security.dto.SignUpRequestDTO;
 import com.lifesup.toolsmanagement.transaction.model.Transaction;
 import com.lifesup.toolsmanagement.transaction.service.TransactionService;
-import com.lifesup.toolsmanagement.user.dto.MapUserDeviceDTO;
 import com.lifesup.toolsmanagement.user.dto.UserDTO;
 import com.lifesup.toolsmanagement.user.model.MapUserDevice;
 import com.lifesup.toolsmanagement.user.model.User;
@@ -16,12 +15,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 

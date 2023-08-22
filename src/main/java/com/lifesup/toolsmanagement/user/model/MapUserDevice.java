@@ -18,7 +18,7 @@ public class MapUserDevice {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(nullable = false)
     private Integer id;
-    
+
     private Integer deviceId;
 
     private LocalDate expDate;

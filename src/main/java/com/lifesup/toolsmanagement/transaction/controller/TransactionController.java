@@ -11,6 +11,7 @@ import com.lifesup.toolsmanagement.transaction.service.TransactionService;
 import com.lifesup.toolsmanagement.user.model.User;
 import com.lifesup.toolsmanagement.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -25,6 +26,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/transaction")
+@Slf4j
 public class TransactionController {
     private final TransactionService transactionService;
     private final UserService userService;
@@ -72,8 +74,9 @@ public class TransactionController {
     @Scheduled(cron = "0 0 0 L * ?")
     public void exportTransaction() throws IOException {
         LocalDate localDate = LocalDate.now();
-        LocalDate lastDateOfMonth = localDate.with(TemporalAdjusters.firstDayOfMonth());
-        LocalDate firstDateOfMoth = localDate.with(TemporalAdjusters.lastDayOfMonth());
+        LocalDate firstDateOfMoth = localDate.with(TemporalAdjusters.firstDayOfMonth());
+        LocalDate lastDateOfMonth = localDate.with(TemporalAdjusters.lastDayOfMonth());
+        log.info("firstDate: " + firstDateOfMoth + " lastDate: " + lastDateOfMonth);
         transactionService.exportTransactionToExcel(firstDateOfMoth, lastDateOfMonth);
     }
 }
