@@ -10,6 +10,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 public class MapUserDeviceDTO {
-    private String deviceId;
+    private Integer deviceId;
     private LocalDate expDate;
 }

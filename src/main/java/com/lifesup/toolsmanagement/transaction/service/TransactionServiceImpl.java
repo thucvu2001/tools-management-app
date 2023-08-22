@@ -27,7 +27,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +41,7 @@ public class TransactionServiceImpl implements TransactionService {
 
 
     @Override
-    public JpaRepository<Transaction, UUID> getRepository() {
+    public JpaRepository<Transaction, Integer> getRepository() {
         return this.transactionRepository;
     }
 
@@ -52,8 +51,8 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<Transaction> getTransactionByUserId(UUID userId) {
-        return transactionRepository.findByUserId(LocalDate.now(), userId);
+    public List<Transaction> getTransactionByUserId(Integer userId) {
+        return transactionRepository.findByUserId(userId);
     }
 
     @Override
@@ -139,7 +138,7 @@ public class TransactionServiceImpl implements TransactionService {
             row.createCell(5).setCellValue(transaction.isActive());
             row.createCell(6).setCellValue(transaction.getCreatedDate().toString());
             row.createCell(7).setCellValue(transaction.isDeleted());
-            row.createCell(8).setCellValue(transaction.getUser().getId().toString());
+            row.createCell(8).setCellValue(transaction.getUser().getId());
             ++rowColumn;
         }
         FileOutputStream fileOutputStream = new FileOutputStream(filePath);

@@ -42,15 +42,12 @@ public class AuthenticationService {
         if (!signUpRequestDTO.getPassword().equals(signUpRequestDTO.getRePassword())) {
             throw new RuntimeException("rePassword does not match");
         }
-
         User user = new User();
         user.setUsername(signUpRequestDTO.getUsername());
         user.setPassword(passwordEncoder.encode(signUpRequestDTO.getPassword()));
         user.setEmail(signUpRequestDTO.getEmail());
         user.setPhone(signUpRequestDTO.getPhone());
-
-        userService.saveWithEntity(user, UserDTO.class);
-        log.info("User ID:" + user.getId());
+        userService.save(user);
         return "Sign Up Success";
     }
 
@@ -59,14 +56,10 @@ public class AuthenticationService {
                 signInRequestDTO.getUsername(),
                 signInRequestDTO.getPassword()
         ));
-        UserDetails userDetails = userService.loadUserByUsername(signInRequestDTO.getUsername());
-        User user = (User) userDetails;
+        User user = userService.getByUsername(signInRequestDTO.getUsername());
         user.setDelete(false);
         userService.updateUser(user.getId(), mapper.map(user, UserDTO.class));
-        log.info("User email: " + user.getEmail());
-
         List<Transaction> transactionList = transactionService.getTransactionByUserId(user.getId());
-        log.info("transactionList: " + transactionList);
         String jwtToken = jwtService.generateToken(user);
         String message = "";
         if (transactionList.isEmpty()) {
@@ -75,7 +68,7 @@ public class AuthenticationService {
             mapUserDevice.setDeviceId(signInRequestDTO.getDeviceId());
             mapUserDevice.setExpDate(null);
             mapUserDevice.setTransaction(null);
-            mapUserDeviceService.saveWithEntity(mapUserDevice, MapUserDeviceDTO.class);
+            mapUserDeviceService.save(mapUserDevice);
             message = "Login success. The account has not purchased the tool or the tool has expired";
         } else {
             outer:
@@ -83,39 +76,32 @@ public class AuthenticationService {
                 for (Transaction transaction : transactionList) {
                     List<MapUserDevice> mapUserDevices = mapUserDeviceService
                             .getMapUserDeviceByUserIdAndTransactionId(transaction.getUser().getId(), transaction.getId());
-                    log.info("mapUserDevices: " + mapUserDevices);
                     for (MapUserDevice mapUserDevice : mapUserDevices) {
                         if (signInRequestDTO.getDeviceId().equals(mapUserDevice.getDeviceId())) {
                             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
                             String formattedDate = dateTimeFormatter.format(mapUserDevice.getExpDate());
-                            message = String.format("Login success. This device can be used until: %s", formattedDate);
+                            message = String.format("Login success. This device can be used tool until: %s", formattedDate);
                             break outer;
                         }
                     }
                     if (transaction.getAmountDevice() == mapUserDevices.size()) {
                         MapUserDevice mapUserDevice = new MapUserDevice();
-                        mapUserDevice.builder()
-                                .deviceId(signInRequestDTO.getDeviceId())
-                                .expDate(null)
-                                .transaction(null)
-                                .user(user)
-                                .build();
-                        mapUserDeviceService.saveWithEntity(mapUserDevice, MapUserDeviceDTO.class);
+                        mapUserDevice.setDeviceId(signInRequestDTO.getDeviceId());
+                        mapUserDevice.setExpDate(null);
+                        mapUserDevice.setUser(user);
+                        mapUserDevice.setTransaction(null);
+                        mapUserDeviceService.save(mapUserDevice);
                         message = "Login success. But device is is full, this device can't use tool";
                         break outer;
-                    } else if (transaction.getAmountDevice() < mapUserDevices.size()) {
+                    } else if (transaction.getAmountDevice() > mapUserDevices.size()) {
                         MapUserDevice mapUserDevice = new MapUserDevice();
-                        mapUserDevice.builder()
-                                .deviceId(signInRequestDTO.getDeviceId())
-                                .expDate(transaction.getExpDate())
-                                .createdDate(LocalDate.now())
-                                .isDeleted(false)
-                                .user(user)
-                                .transaction(transaction)
-                                .build();
-                        mapUserDeviceService.saveWithEntity(mapUserDevice, MapUserDeviceDTO.class);
+                        mapUserDevice.setDeviceId(signInRequestDTO.getDeviceId());
+                        mapUserDevice.setExpDate(transaction.getExpDate());
+                        mapUserDevice.setUser(user);
+                        mapUserDevice.setTransaction(transaction);
+                        mapUserDeviceService.save(mapUserDevice);
                         mapUserDevices.add(mapUserDevice);
-                        message = String.format("Login success. This account just added a new device (%d/%d)", mapUserDevices.size() + 1, transaction.getId());
+                        message = String.format("Login success. This account just added a new device (%d/%d)", mapUserDevices.size(), transaction.getAmountDevice());
                         break outer;
                     }
                 }

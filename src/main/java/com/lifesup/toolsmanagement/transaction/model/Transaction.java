@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -22,8 +21,8 @@ public class Transaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "transaction_id", columnDefinition = "VARCHAR(255)")
-    private UUID id;
+    @Column(name = "transaction_id", nullable = false)
+    private Integer id;
     private BigDecimal value;
     private LocalDate expDate;
     private int amountDevice;

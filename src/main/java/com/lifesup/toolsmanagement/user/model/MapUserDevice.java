@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -17,11 +16,15 @@ import java.util.UUID;
 public class MapUserDevice {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(columnDefinition = "VARCHAR(255)")
-    private UUID id;
-    private String deviceId;
+    @Column(nullable = false)
+    private Integer id;
+    
+    private Integer deviceId;
+
     private LocalDate expDate;
+
     private LocalDate createdDate = LocalDate.now();
+
     private boolean isDeleted = false;
 
     @ManyToOne

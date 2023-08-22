@@ -21,9 +21,9 @@ import java.util.*;
 public class User implements UserDetails, Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "user_id", columnDefinition = "VARCHAR(255)", nullable = false)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "user_id", nullable = false)
+    private Integer id;
 
     @Column(name = "username",
             unique = true,
@@ -47,6 +47,7 @@ public class User implements UserDetails, Serializable {
     private String phone;
 
     private LocalDate createdDate = LocalDate.now();
+    
     private boolean isDelete = false;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)

@@ -9,10 +9,9 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 
-public interface TransactionService extends GenericService<Transaction, TransactionDTO, UUID> {
-    List<Transaction> getTransactionByUserId(UUID userId);
+public interface TransactionService extends GenericService<Transaction, TransactionDTO, Integer> {
+    List<Transaction> getTransactionByUserId(Integer userId);
 
     String createTransaction(int year, int amountDevice);
 

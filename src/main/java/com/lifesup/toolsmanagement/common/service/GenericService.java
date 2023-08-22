@@ -21,20 +21,8 @@ public interface GenericService<T, D, I> {
                 .toList();
     }
 
-    default Optional<D> findById(Class<D> dClass, I id) {
-        return getRepository().findById(id)
-                .map(model -> getMapper().map(model, dClass));
-    }
-
-    default D saveWithDTO(D dto, Class<T> tClass, Class<D> dClass) {
-        T entity = getMapper().map(dto, tClass);
+    default void save(T entity) {
         getRepository().save(entity);
-        return getMapper().map(entity, dClass);
-    }
-
-    default D saveWithEntity(T entity, Class<D> dClass) {
-        getRepository().save(entity);
-        return getMapper().map(entity, dClass);
     }
 
     default void deleteById(I id) {

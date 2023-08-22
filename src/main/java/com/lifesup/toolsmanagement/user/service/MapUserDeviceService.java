@@ -5,10 +5,9 @@ import com.lifesup.toolsmanagement.user.dto.MapUserDeviceDTO;
 import com.lifesup.toolsmanagement.user.model.MapUserDevice;
 
 import java.util.List;
-import java.util.UUID;
 
-public interface MapUserDeviceService extends GenericService<MapUserDevice, MapUserDeviceDTO, UUID> {
+public interface MapUserDeviceService extends GenericService<MapUserDevice, MapUserDeviceDTO, Integer> {
     void update(MapUserDevice mapUserDevice);
 
-    List<MapUserDevice> getMapUserDeviceByUserIdAndTransactionId(UUID userId, UUID transactionId);
+    List<MapUserDevice> getMapUserDeviceByUserIdAndTransactionId(Integer userId, Integer transactionId);
 }

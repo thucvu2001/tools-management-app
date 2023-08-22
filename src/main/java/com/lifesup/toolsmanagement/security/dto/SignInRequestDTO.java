@@ -10,5 +10,5 @@ import lombok.*;
 public class SignInRequestDTO {
     private String username;
     private String password;
-    private String deviceId;
+    private Integer deviceId;
 }

@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @Transactional
@@ -20,7 +19,7 @@ public class MapUserDeviceServiceImpl implements MapUserDeviceService {
     private final Mapper mapper;
 
     @Override
-    public JpaRepository<MapUserDevice, UUID> getRepository() {
+    public JpaRepository<MapUserDevice, Integer> getRepository() {
         return this.mapUserDeviceRepository;
     }
 
@@ -43,7 +42,7 @@ public class MapUserDeviceServiceImpl implements MapUserDeviceService {
     }
 
     @Override
-    public List<MapUserDevice> getMapUserDeviceByUserIdAndTransactionId(UUID userId, UUID transactionId) {
+    public List<MapUserDevice> getMapUserDeviceByUserIdAndTransactionId(Integer userId, Integer transactionId) {
         return mapUserDeviceRepository.findByUserIdAndTransactionId(userId, transactionId);
     }
 }
