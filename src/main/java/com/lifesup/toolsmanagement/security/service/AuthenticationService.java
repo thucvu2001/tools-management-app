@@ -54,8 +54,6 @@ public class AuthenticationService {
                 signInRequestDTO.getPassword()
         ));
         User user = userService.getByUsername(signInRequestDTO.getUsername());
-        user.setDelete(false);
-        userService.updateUser(user.getId(), mapper.map(user, UserDTO.class));
         List<Transaction> transactionList = transactionService.getTransactionByUserId(user.getId());
         String jwtToken = jwtService.generateToken(user);
         String message = "";
@@ -75,6 +73,7 @@ public class AuthenticationService {
                             .getMapUserDeviceByUserIdAndTransactionId(transaction.getUser().getId(), transaction.getId());
                     for (MapUserDevice mapUserDevice : mapUserDevices) {
                         if (signInRequestDTO.getDeviceId().equals(mapUserDevice.getDeviceId())) {
+                            mapUserDevice.setDeleted(false);
                             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
                             String formattedDate = dateTimeFormatter.format(mapUserDevice.getExpDate());
                             message = String.format("Login success. This device can be used tool until: %s", formattedDate);
@@ -108,5 +107,9 @@ public class AuthenticationService {
                 .message(message)
                 .token(jwtToken)
                 .build();
+    }
+
+    public void signOut(String token) {
+        
     }
 }

@@ -53,7 +53,7 @@ public class TransactionController {
         DecodedJWT decodedJWT = jwtVerifier.verify(authToken);
 
         String username = decodedJWT.getSubject();
-        User user = (User) userService.loadUserByUsername(username);
+        User user = userService.getByUsername(username);
 
         String response = transactionService.checkTransaction(user, checkRechargeRequest.getToken(), checkRechargeRequest.getAmountMoney());
         if (response.equals("Not enough money")) {
@@ -76,7 +76,6 @@ public class TransactionController {
         LocalDate localDate = LocalDate.now();
         LocalDate firstDateOfMoth = localDate.with(TemporalAdjusters.firstDayOfMonth());
         LocalDate lastDateOfMonth = localDate.with(TemporalAdjusters.lastDayOfMonth());
-        log.info("firstDate: " + firstDateOfMoth + " lastDate: " + lastDateOfMonth);
         transactionService.exportTransactionToExcel(firstDateOfMoth, lastDateOfMonth);
     }
 }

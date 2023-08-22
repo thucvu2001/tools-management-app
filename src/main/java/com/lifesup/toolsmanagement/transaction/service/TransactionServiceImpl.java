@@ -85,6 +85,21 @@ public class TransactionServiceImpl implements TransactionService {
                     .user(user)
                     .build();
             transactionRepository.save(transaction);
+
+            // check expiration and renewal
+            Set<MapUserDevice> mapUserDevices = user.getMapUserDevices();
+            int amount = 1;
+            for (MapUserDevice mapUserDevice : mapUserDevices) {
+                LocalDate date = mapUserDevice.getExpDate();
+                if (date == null || date.isAfter(LocalDate.now())) {
+                    mapUserDevice.setTransaction(transaction);
+                    mapUserDevice.setExpDate(transaction.getExpDate());
+                    amount++;
+                }
+                if (amount == transaction.getAmountDevice()) {
+                    break;
+                }
+            }
             return "Recharge successful";
         }
     }
