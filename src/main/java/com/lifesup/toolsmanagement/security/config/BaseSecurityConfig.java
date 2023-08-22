@@ -24,7 +24,7 @@ public class BaseSecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return userService;
+        return username -> userService.loadUserByUsername(username);
     }
 
     @Bean
