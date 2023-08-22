@@ -34,21 +34,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO updateUser(Integer userId, UserDTO userDTO) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            throw new RuntimeException("User with ID: " + userId + " not found");
-        }
-        User user = userOptional.get();
-        user.setUsername(userDTO.getUsername());
-        user.setPassword(userDTO.getPassword());
-        user.setEmail(userDTO.getEmail());
-        user.setPhone(userDTO.getPhone());
-        user.setDelete(user.isDelete());
-        return modelMapper.map(user, UserDTO.class);
-    }
-
-    @Override
     public User getByUsername(String username) {
         Optional<User> userOptional = userRepository.findByUsername(username);
         if (userOptional.isEmpty()) {

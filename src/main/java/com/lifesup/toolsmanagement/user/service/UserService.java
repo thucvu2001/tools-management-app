@@ -6,8 +6,6 @@ import com.lifesup.toolsmanagement.user.model.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 public interface UserService extends GenericService<User, UserDTO, Integer>, UserDetailsService {
-    UserDTO updateUser(Integer userId, UserDTO userDTO);
-
     User getByUsername(String username);
 }
 
